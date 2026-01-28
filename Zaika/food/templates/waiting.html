@@ -17,7 +17,7 @@
         <h1>Waiting for Admin Approval</h1>
         <p>Your order is being processed and is waiting for approval. Please be patient.</p>
         <div class="status" id="status" aria-live="polite">Status: Pending</div>
-        <div class="loading">Refreshing every 45 seconds...</div>
+        <div class="loading">Refreshing every 15 seconds...</div>
         <a href="{% url 'home' %}" class="menu-toggle-link">Cancel</a>
 
     </div>
@@ -63,8 +63,8 @@
                 });
             }
 
-            // Start polling every 45 seconds
-            pollingInterval = setInterval(checkStatus, 45000);
+            // Start polling every 15 seconds
+            pollingInterval = setInterval(checkStatus, 15000);
             checkStatus(); // Initial call
         }
     </script>

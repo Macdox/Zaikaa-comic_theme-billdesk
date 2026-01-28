@@ -1,103 +1,221 @@
+/* Comic Theme Sign Up CSS */
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&display=swap');
+
+:root {
+  --comic-yellow: #FFD700;
+  --comic-red: #FF4136;
+  --comic-blue: #007BFF;
+  --comic-white: #FFFFFF;
+  --comic-black: #000000;
+  --comic-border: 3px solid #000000;
+  --comic-shadow: 4px 4px 0px 0px #000000;
+}
+
+* {
+    box-sizing: border-box;
+}
+
 body {
+    font-family: 'Comic Neue', cursive;
+    background-color: var(--comic-yellow);
+    background-image: radial-gradient(#00000022 2px, transparent 2px);
+    background-size: 20px 20px;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    background: linear-gradient(135deg, #ffefd5, #ffdab9);
-    font-family: Arial, sans-serif;
+    min-height: 100vh;
     margin: 0;
-    position: relative;
+    padding: 20px;
 }
+
+/* E-Cell Logo Positioning */
 .ecell-logo {
     position: absolute;
-    top: 10px;
-    left: 10px;
-    width: 60px;
+    top: 20px;
+    left: 20px;
+    width: 80px;
     height: auto;
+    z-index: 10;
 }
+
 .container {
-    background: rgba(255, 255, 255, 0.9);
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(5px);
-    animation: fadeIn 1s ease-in-out;
-    width: 90%;
-    max-width: 330px;
+    background-color: var(--comic-white);
+    padding: 30px;
+    border: var(--comic-border);
+    box-shadow: 10px 10px 0px black;
+    width: 100%;
+    max-width: 400px; /* Wider for signup */
     text-align: center;
+    border-radius: 0;
+    position: relative;
+    margin-top: 60px; /* Space for logo on mobile */
 }
+
 .logo {
-    width: 100px;
-    height: 100px;
-    margin-bottom: 1rem;
+    width: 120px;
+    height: 120px;
+    margin-bottom: 20px;
     border-radius: 50%;
+    border: 3px solid black;
+    box-shadow: 3px 3px 0px black;
+    background: white;
 }
+
+h2 {
+    margin-bottom: 20px;
+    font-size: 2.5rem !important; /* Override inline style */
+    color: var(--comic-black) !important; /* Override inline style */
+    font-family: 'Bangers', cursive;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 0px var(--comic-white);
+    letter-spacing: 1px;
+}
+
 .signup-form {
     display: flex;
     flex-direction: column;
-}
-.input-group {
-    position: relative;
-    margin-bottom: 1rem;
-}
-.input-group input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ced4da;
-    background: transparent;
-    color: #495057;
-    outline: none;
-    border-radius: 5px;
-}
-.input-group label {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    transition: 0.3s ease-in-out;
-    color: #6c757d;
-}
-.input-group input:focus + label, 
-.input-group input:valid + label {
-    top: -10px;
-    left: 5px;
-    font-size: 12px;
-    color: #ff7f50;
-    background: white;
-    padding: 0 5px;
-}
-.btn {
-    padding: 10px;
-    background: #ff7f50;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    color: white;
-    border-radius: 5px;
-    transition: 0.3s ease-in-out;
-}
-.btn:hover {
-    background: #e65c00;
-}
-.options {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 1rem;
-}
-.options a {
-    color: #ff7f50;
-    text-decoration: none;
-    transition: 0.3s;
-    font-size: 14px;
-}
-.options a:hover {
-    text-decoration: underline;
-}
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
+    gap: 15px;
 }
 
-.options a:hover {
-    color: green;
-    text-decoration: underline;
+.input-group {
+    position: relative;
+    margin-bottom: 5px;
+    text-align: left;
+}
+
+/* Input Styling */
+.input-group input {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid black;
+    background: white;
+    color: black;
+    outline: none;
+    font-family: 'Comic Neue', cursive;
+    font-weight: bold;
+    font-size: 1.1rem;
+    box-shadow: 3px 3px 0px #ccc;
+    transition: all 0.2s;
+    border-radius: 0;
+}
+
+.input-group input:focus {
+    box-shadow: 4px 4px 0px black;
+    background: #fffbe6;
+}
+
+/* Label Styling - Adjusting for Comic Theme (Static or Floating) */
+/* Moving label outside or styling it to look good above */
+.input-group label {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    transform: translateY(-50%);
+    color: #666;
+    font-family: 'Comic Neue', cursive;
+    font-weight: bold;
+    pointer-events: none;
+    transition: 0.3s ease-in-out;
+    background: transparent;
+    padding: 0 5px;
+}
+
+/* Floating Label Effect */
+.input-group input:focus + label,
+.input-group input:valid + label {
+    top: -10px;
+    left: 10px;
+    font-size: 0.9rem;
+    color: var(--comic-black);
+    background: var(--comic-yellow);
+    border: 1px solid black;
+    box-shadow: 2px 2px 0px black;
+    transform: translateY(0);
+    z-index: 2;
+}
+
+button[type="submit"] {
+    width: 100%;
+    padding: 15px;
+    background-color: var(--comic-red);
+    border: 3px solid black;
+    color: white;
+    font-size: 1.5rem;
+    font-family: 'Bangers', cursive;
+    letter-spacing: 1px;
+    box-shadow: 5px 5px 0px black;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 0;
+    margin-top: 10px;
+}
+
+button[type="submit"]:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px black;
+    background-color: var(--comic-yellow);
+    color: black;
+}
+
+h4 {
+    color: var(--comic-red);
+    font-family: 'Comic Neue', cursive;
+    margin: 10px 0;
+}
+
+.options {
+    margin-top: 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: black;
+    font-family: 'Comic Neue', cursive;
+}
+
+.options a {
+    text-decoration: none;
+    display: inline-block;
+}
+
+.options a span {
+    color: var(--comic-blue) !important; /* Override inline green */
+    font-weight: bold;
+    text-decoration: none;
+    border-bottom: 2px solid black;
+    transition: all 0.2s;
+}
+
+.options a:hover span {
+    background-color: var(--comic-yellow);
+    color: black !important;
+    box-shadow: 2px 2px 0px black;
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.container {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .container {
+        padding: 20px;
+        width: 100%;
+        margin-top: 50px;
+    }
+
+    h2 {
+        font-size: 2rem !important;
+    }
+    
+    .ecell-logo {
+        width: 60px;
+        top: 10px;
+        left: 10px;
+    }
 }

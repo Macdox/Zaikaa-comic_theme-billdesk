@@ -8,7 +8,7 @@
     <link
       rel="stylesheet"
       type="text/css"
-      href="{% static 'css/urnp.css' %}"
+      href="{% static 'css/urnp.css' %}?v=1.0"
     />
     <link rel="icon" href="{% static 'img/ecell-logo.png'%}" type="image/png">
 
@@ -17,7 +17,7 @@
     <img src="{% static 'img/e_cell_logo.png' %}" alt="E-Cell Logo" class="ecell-logo">
     <div class="container">
         <img src="{% static 'img/FF_logo.png' %}" alt="Food Fiesta Logo" class="logo">
-        <h2 style="color: #e65c00;">Forgot Password</h2>
+        <h2>Forgot Password</h2>
         <form class="forgot-password-form" method="POST">
 			{% csrf_token %}
             <div class="input-group">

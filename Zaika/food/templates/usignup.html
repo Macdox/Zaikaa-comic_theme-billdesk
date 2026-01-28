@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Food Fiesta - Sign Up</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/signup.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/signup.css' %}?v=1.0">
     <link rel="icon" href="{% static 'img/ecell-logo.png'%}" type="image/png">
 
     <script src="{% static 'js/signup.js' %}" defer></script>
@@ -14,7 +14,7 @@
     <img src="{% static 'img/e_cell_logo.png' %}" alt="E-Cell Logo" class="ecell-logo">
     <div class="container">
         <img src="{% static 'img/FF_logo.png' %}" alt="Food Fiesta Logo" class="logo">
-        <h2 style="color: #e65c00;">Food Fiesta Sign Up</h2>
+        <h2>Food Fiesta Sign Up</h2>
         <form class="signup-form" method="POST" onsubmit="return validatePassword()">
             {% csrf_token %}
             <div class="input-group">
@@ -41,7 +41,7 @@
             <h4>{{ msg }}</h4>
             <div class="options">
                 Already have an account? <a href="{% url 'ulogin' %}" id="login">
-                <span style="color:green;font-weight:bolder;">Login</span></a>
+                <span>Login</span></a>
             </div>
         </form>
     </div>

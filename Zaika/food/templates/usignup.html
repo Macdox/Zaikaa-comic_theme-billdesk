@@ -15,8 +15,15 @@
     <div class="container">
         <img src="{% static 'img/FF_logo.png' %}" alt="Food Fiesta Logo" class="logo">
         <h2>Food Fiesta Sign Up</h2>
-        <form class="signup-form" method="POST" onsubmit="return validatePassword()">
+        <div class="signup-toggle">
+            <button id="btn-student" class="toggle-btn active" onclick="setRole('student')">Student</button>
+            <button id="btn-staff" class="toggle-btn" onclick="setRole('staff')">Staff</button>
+        </div>
+
+        <form class="signup-form" method="POST" onsubmit="return validateForm()">
             {% csrf_token %}
+            <input type="hidden" id="role" name="role" value="student">
+            
             <div class="input-group">
                 <input type="text" id="username" name="username" required>
                 <label for="username">Name</label>
@@ -25,10 +32,24 @@
                 <input type="tel" id="phone" name="phone" required>
                 <label for="phone">Phone Number</label>
             </div>
+            
+            <!-- Student Specific Fields -->
+            <div id="student-fields">
+                <div class="input-group">
+                    <input type="text" id="year" name="year" pattern="\d+" title="Please enter a valid year (numbers only)">
+                    <label for="year">Year</label>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="branch" name="branch">
+                    <label for="branch">Branch</label>
+                </div>
+            </div>
+
             <div class="input-group">
                 <input type="email" id="email" name="un" required>
                 <label for="email">Email</label>
             </div>
+
             <div class="input-group">
                 <input type="password" id="password" name="password" required>
                 <label for="password">Password</label>

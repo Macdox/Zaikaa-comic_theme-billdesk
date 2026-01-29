@@ -75,6 +75,63 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
+// Role switching logic
+function setRole(role) {
+    document.getElementById("role").value = role;
+    const studentFields = document.getElementById("student-fields");
+    const btnStudent = document.getElementById("btn-student");
+    const btnStaff = document.getElementById("btn-staff");
+
+    if (role === 'student') {
+        studentFields.style.display = "block";
+        btnStudent.classList.add("active");
+        btnStaff.classList.remove("active");
+        
+        // Add required attribute for student fields
+        document.getElementById("year").setAttribute("required", "true");
+        document.getElementById("branch").setAttribute("required", "true");
+    } else {
+        studentFields.style.display = "none";
+        btnStaff.classList.add("active");
+        btnStudent.classList.remove("active");
+        
+        // Remove required attribute for staff fields
+        document.getElementById("year").removeAttribute("required");
+        document.getElementById("branch").removeAttribute("required");
+    }
+}
+
+// Initial setup
+document.addEventListener("DOMContentLoaded", function() {
+    setRole('student'); // Default to student
+});
+
+
+function validateForm() {
+    // Run existing validations
+    if (!validatePassword()) return false;
+    
+    // Additional validations if triggered manually or via submit
+    // Note: The input event listeners handle visual feedback, but we should double check here
+    
+    const role = document.getElementById("role").value;
+    if (role === 'student') {
+        const year = document.getElementById("year").value;
+        const branch = document.getElementById("branch").value;
+        
+        if (!/^\d+$/.test(year)) {
+            alert("Year must be a number.");
+            return false;
+        }
+        if (!branch.trim()) {
+            alert("Branch is required.");
+            return false;
+        }
+    }
+    
+    return true;
+}
+
 function validatePassword() {
     var password = document.getElementById("password").value;
     var confirmPassword = document.getElementById("confirm-password").value;

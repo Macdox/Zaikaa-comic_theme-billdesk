@@ -1060,6 +1060,21 @@ def usignup(request):
         email = request.POST.get("un")  # Assuming 'un' is email
         password = request.POST.get("password")  # Accept user-input password
 
+        role = request.POST.get("role")
+        year = request.POST.get("year")
+        branch = request.POST.get("branch")
+
+        # Handle Year and Branch based on role
+        if role == 'staff':
+            year = None
+            branch = None
+        else:
+            # Ensure year is an integer if provided
+            try:
+                year = int(year) if year else None
+            except ValueError:
+                year = None
+
         # Hash the password before storing using Django's make_password
         hashed_password = make_password(password)  # Use make_password for hashing
 
@@ -1072,8 +1087,8 @@ def usignup(request):
 
             # Insert user into the users table using raw SQL
             cursor.execute(
-                "INSERT INTO users (name, mobile, email, password) VALUES (%s, %s, %s, %s)",
-                [username, phone, email, hashed_password]
+                "INSERT INTO users (name, mobile, email, password, year, branch) VALUES (%s, %s, %s, %s, %s, %s)",
+                [username, phone, email, hashed_password, year, branch]
             )
 
         return redirect("ulogin")

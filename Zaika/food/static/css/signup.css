@@ -71,6 +71,39 @@ h2 {
     letter-spacing: 1px;
 }
 
+
+
+.signup-toggle {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.toggle-btn {
+    flex: 1;
+    padding: 10px;
+    background: white;
+    border: 2px solid black;
+    font-family: 'Bangers', cursive;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 3px 3px 0px black;
+    transition: all 0.2s;
+    text-transform: uppercase;
+}
+
+.toggle-btn.active {
+    background: var(--comic-blue);
+    color: white;
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0px black;
+}
+
+.toggle-btn:hover {
+    background: var(--comic-yellow);
+}
+
 .signup-form {
     display: flex;
     flex-direction: column;

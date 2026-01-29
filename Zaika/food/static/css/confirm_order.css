@@ -148,6 +148,7 @@ h1 {
     font-size: 3rem;
     font-family: 'Bangers', cursive;
     text-transform: uppercase;
+    letter-spacing: 3px;
     text-shadow: 3px 3px 0px var(--comic-yellow);
 }
 
@@ -160,6 +161,7 @@ h2 {
     border-bottom: 3px solid black;
     padding-bottom: 10px;
     margin-bottom: 20px;
+    letter-spacing: 2px;
     text-shadow: 2px 2px 0px black;
 }
 

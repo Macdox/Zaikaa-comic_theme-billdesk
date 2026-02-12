@@ -5,4 +5,4 @@ __pycache__/
 .env
 venv/
 venv_linux/
-staticfiles/
+**/__pycache__/

@@ -5,7 +5,7 @@ from psycopg2 import sql
 host = "localhost"
 port = 5432
 user = "postgres"
-password = "abc123"  # Replace with your PostgreSQL password
+password = "#Raj0977"  # Replace with your PostgreSQL password
 
 # Step 1: Connect to the default 'postgres' database
 try:

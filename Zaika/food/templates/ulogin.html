@@ -29,12 +29,12 @@
         <form class="login-form" method="POST">
 			{% csrf_token %}
             <div class="input-group">
-                <input type="email" name = 'un' id="email" required>
-                <label for="email">Email</label>
+                <input type="email" name = 'un' id="email" required pattern=".+@sakec\.ac\.in" title="Please use your @sakec.ac.in email">
+                <label for="email">Email (@sakec.ac.in only)</label>
             </div>
             <div class="input-group">
-                <input type="password" name = 'pw' id="password" required>
-                <label for="password">Password</label>
+                <input type="password" name = 'pw' id="password" required pattern="\d{6}" title="Password must be a 6-digit number" inputmode="numeric">
+                <label for="password">Password (6-digit PIN)</label>
             </div>
             <button type="submit" class="btn">Login</button>
             <div class="options">

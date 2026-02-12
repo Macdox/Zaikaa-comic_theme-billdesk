@@ -46,16 +46,16 @@
             </div>
 
             <div class="input-group">
-                <input type="email" id="email" name="un" required>
-                <label for="email">Email</label>
+                <input type="email" id="email" name="un" required pattern=".+@sakec\.ac\.in" title="Please use your @sakec.ac.in email">
+                <label for="email">Email (@sakec.ac.in only)</label>
             </div>
 
             <div class="input-group">
-                <input type="password" id="password" name="password" required>
-                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required pattern="\d{6}" title="Password must be a 6-digit number" inputmode="numeric">
+                <label for="password">Password (6-digit PIN)</label>
             </div>
             <div class="input-group">
-                <input type="password" id="confirm-password" required>
+                <input type="password" id="confirm-password" required pattern="\d{6}" title="Password must be a 6-digit number" inputmode="numeric">
                 <label for="confirm-password">Confirm Password</label>
             </div>
             <button type="submit" class="btn">Sign Up</button>

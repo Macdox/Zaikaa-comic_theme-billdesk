@@ -11,8 +11,8 @@ import os
 import logging
 import re
 from random import *
+
 logger = logging.getLogger(__name__)
-import razorpay
 import uuid
 from django.conf import settings
 from django.contrib.auth.hashers import check_password
@@ -126,6 +126,7 @@ def confirm_order(request):
         user_name = request.session['user_name'] 
         user_email = request.session['user_email'] 
         user_phone = request.session['user_phone'] 
+        
         # If no items are selected, redirect to the home page
         if not selected_items:
             return redirect('home')
@@ -140,6 +141,73 @@ def confirm_order(request):
     else:
         return redirect('ulogin')
 
+
+def create_order(request):
+    if request.session.get("is_authenticated"):
+        import requests as http_requests
+
+        selected_items = request.session.get('selected_items', [])
+        user_name = request.session['user_name']
+        user_email = request.session['user_email']
+        user_phone = request.session['user_phone']
+        order_id = request.POST.get('order_id') or request.session.get('order_id')
+        
+        # Safely extract shop_ids from items_name
+        shop_ids = list(set(item.get('item_name', '').split('(Shop ID: ')[-1].rstrip(')') for item in selected_items if '(Shop ID: ' in item.get('item_name', '')))
+        
+        # Calculate total from selected items
+        total_amount = sum(float(item.get('total_price', item.get('price', 0))) for item in selected_items)
+        
+        # Send to Express backend
+        Backend_url = os.environ.get("BACKEND_URL", "http://localhost:8000")
+        url = f'{Backend_url}/api/payments/create-order-zaikaa'
+
+        try:
+            response = http_requests.post(
+                url,
+                json={
+                    "order_id": order_id,
+                    "total_amount": total_amount,
+                    "user_name": user_name,
+                    "user_email": user_email,
+                    "user_phone": user_phone,
+                    "selected_items": selected_items,
+                    "shop_ids": shop_ids
+                },
+                headers={'Content-Type': 'application/json'},
+                timeout=30
+            )
+
+            data = response.json()
+            print(f"Express API response: {data}")
+
+            if response.status_code == 200 and data.get('success'):
+                # Store order details in session
+                request.session['order_id'] = order_id
+                request.session['transaction_id'] = data.get('data', {}).get('transactionId')
+                
+                # Get BillDesk redirect parameters
+                bd_data = data.get('data', {})
+                merchantid = bd_data.get('merchantid')
+                bdorderid = bd_data.get('bdorderid')
+                rdata = bd_data.get('rdata')
+                
+                if merchantid and bdorderid and rdata:
+                    # Redirect to Express forwardToBillDesk endpoint
+                    forward_url = f"{Backend_url}/api/payments/forward-to-billdesk?merchantid={merchantid}&bdorderid={bdorderid}&rdata={rdata}"
+                    return redirect(forward_url)
+                else:
+                    return HttpResponse("Payment gateway configuration error", status=500)
+            else:
+                error_msg = data.get('message', 'Payment initiation failed')
+                return HttpResponse(f"Payment Error: {error_msg}", status=400)
+
+        except Exception as e:
+            print(f"Error calling Express API: {e}")
+            return HttpResponse(f"Failed to connect to payment server: {str(e)}", status=500)
+
+    else:
+        return redirect('ulogin')
 
 
 def settinguporder(request):
@@ -594,8 +662,8 @@ def update_order_status(request, order_id, status):
 
 
 # Dummy admin credentials
-ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL")
-ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD")
+ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL","tejasnajare@gmail.com")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD","tejas@123")
 
 def admin_login(request):
     if request.method == "POST":
@@ -797,14 +865,11 @@ def payment_success_view(request):
                 if not all([user_name, user_email, mobile]):
                     return JsonResponse({'success': False, 'message': "Session data missing."})
 
-                # Initialize Razorpay client
-                client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_SECRET_KEY))
+                # TODO: Implement Billdesk payment verification
+                # For now, assume payment is verified (replace with actual Billdesk verification)
+                payment_verified = True  # Placeholder - implement Billdesk verification
 
-                # Verify payment with Razorpay
-                payment = client.payment.fetch(payment_id)
-                # logging.debug(f"Fetched payment details: {payment}")
-
-                if payment['status'] == 'captured':
+                if payment_verified:
                     # logging.debug("Payment captured successfully.")
 
                     # Retrieve cart items
@@ -913,6 +978,7 @@ def payment_success_view(request):
     return JsonResponse({'success': False, 'message': 'Invalid request method.'})
 
 
+
 def generate_order_id(request):
     # Fetching user details from session
     user_details = {
@@ -942,24 +1008,19 @@ def generate_order_id(request):
     request.session['selected_items'] = selected_items  
     request.session.modified = True  # Ensure session updates
 
-    # Razorpay order creation logic
-    client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_SECRET_KEY))
-    razorpay_order = client.order.create(dict(
-        amount=int(total_amount * 100),  # amount in paise
-        currency='INR',
-        receipt=str(uuid.uuid4())
-    ))
+    # TODO: Implement Billdesk order creation
+    # Generate a unique order ID for Billdesk
+    order_id = str(uuid.uuid4())
     
-    # Storing the Razorpay order ID in the session
-    request.session['razorpay_order_id'] = razorpay_order['id']
+    # Store the order ID in the session
+    request.session['order_id'] = order_id
 
     # Returning the response with updated data
     context = {
         'user_details': user_details,
         'selected_items': selected_items,
         'total_amount': total_amount,
-        'razorpay_order_id': razorpay_order['id'],
-        'razorpay_key' : settings.RAZORPAY_KEY_ID,
+        'order_id': order_id,
     }
     # print(context)
     return render(request, 'pay_online.html', context)
@@ -1253,3 +1314,113 @@ def export_orders_to_excel(request):
         return response
 
     return HttpResponse("Invalid request", status=400)
+
+
+# ============================================
+# BILLDESK PAYMENT HANDLERS FOR ZAIKAA
+# ============================================
+
+def payment_success_billdesk(request):
+    """
+    Handle successful payment redirect from BillDesk via Express backend
+    GET /zaikaa/payment-success?order_id=xxx&txn_id=xxx&status=success
+    """
+    if request.method == 'GET':
+        order_id = request.GET.get('order_id')
+        txn_id = request.GET.get('txn_id')
+        status = request.GET.get('status')
+
+        print(f"Payment success callback: order_id={order_id}, txn_id={txn_id}, status={status}")
+
+        if not order_id or status != 'success':
+            return redirect('payment_failed_billdesk')
+
+        # Get user details from session
+        user_name = request.session.get('user_name')
+        user_email = request.session.get('user_email')
+        user_phone = request.session.get('user_phone')
+        selected_items = request.session.get('selected_items', [])
+
+        if not user_email or not selected_items:
+            return HttpResponse("Session expired. Please try again.", status=400)
+
+        try:
+            with transaction.atomic():
+                # Insert user if not exists
+                with connection.cursor() as cursor:
+                    cursor.execute("""
+                        SELECT "user_id" FROM "users" WHERE "mobile" = %s OR "email" = %s;
+                    """, [user_phone, user_email])
+                    result = cursor.fetchone()
+
+                    if result:
+                        user_id = result[0]
+                    else:
+                        cursor.execute("""
+                            INSERT INTO "users" ("name", "email", "mobile")
+                            VALUES (%s, %s, %s) RETURNING "user_id";
+                        """, [user_name, user_email, user_phone])
+                        user_id = cursor.fetchone()[0]
+
+                # Generate token ID
+                token_id = randint(1000, 9999)
+                timestamp = datetime.now()
+
+                # Insert orders into orderlist
+                with connection.cursor() as cursor:
+                    for item in selected_items:
+                        item_name = item.get('item_name', '')
+                        quantity = item.get('quantity', 1)
+                        price = float(item.get('price', 0))
+
+                        # Extract shop_id from item_name
+                        match = re.match(r'^(.*?) \(Shop ID: (\d+)\)$', item_name)
+                        item_name_without_shop = match.group(1) if match else item_name
+                        shop_id = match.group(2) if match else item.get('shop_id')
+
+                        if not shop_id:
+                            print(f"Warning: Shop ID not found for item: {item_name}")
+                            continue
+
+                        total_price = quantity * price
+
+                        cursor.execute("""
+                            INSERT INTO "orderlist" 
+                            ("email", "name", "contact_no", "shop_id", "item_name", "qty", "total_amt", "status", "tokenid", "timestamp", "mode_of_payment")
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING "order_id";
+                        """, [user_email, user_name, user_phone, shop_id, item_name_without_shop, quantity, total_price, 'Approved', token_id, timestamp, 'Online'])
+
+                print(f"Orders created successfully. Token ID: {token_id}")
+
+                # Clear cart from session
+                request.session['selected_items'] = []
+                request.session.modified = True
+
+                return redirect('success', token_id=token_id)
+
+        except Exception as e:
+            print(f"Error processing payment success: {e}")
+            return HttpResponse(f"Error processing order: {str(e)}", status=500)
+
+    return HttpResponse("Invalid request method", status=405)
+
+
+def payment_failed_billdesk(request):
+    """
+    Handle failed payment redirect from BillDesk via Express backend
+    GET /zaikaa/payment-failed?order_id=xxx&error=xxx&reason=xxx
+    """
+    order_id = request.GET.get('order_id', '')
+    error = request.GET.get('error', 'Payment failed')
+    reason = request.GET.get('reason', '')
+
+    print(f"Payment failed callback: order_id={order_id}, error={error}, reason={reason}")
+
+    context = {
+        'order_id': order_id,
+        'error': error,
+        'reason': reason,
+        'message': 'Your payment could not be processed. Please try again.'
+    }
+
+    return render(request, 'payment_failed.html', context)

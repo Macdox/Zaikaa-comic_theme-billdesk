@@ -88,9 +88,9 @@ DATABASES = {
         'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
         'NAME': os.getenv('DB_NAME', 'zaikaa'),
         'USER': os.getenv('DB_USER', 'postgres'),
-        'PASSWORD': os.getenv('DB_PASSWORD', '#Raj0977'),
+        'PASSWORD': os.getenv('DB_PASSWORD', '12345'),
         'HOST': os.getenv('DB_HOST', 'localhost'),
-        'PORT': os.getenv('DB_PORT', '5432'),
+        'PORT': os.getenv('DB_PORT', '5433'),
     }
 }
 
@@ -161,9 +161,10 @@ else:
     STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 
-# Razorpay credentials (automatically loaded from .env)
-RAZORPAY_KEY_ID = os.getenv('RAZORPAY_KEY_ID', 'rzp_test_x6EYO4W3NIqb6X')
-RAZORPAY_SECRET_KEY = os.getenv('RAZORPAY_SECRET_KEY', 'XyLCQKkNiM9Mf5DIzRwReFEg')
+# Billdesk credentials (to be configured)
+# BILLDESK_MERCHANT_ID = os.getenv('BILLDESK_MERCHANT_ID', '')
+# BILLDESK_SECRET_KEY = os.getenv('BILLDESK_SECRET_KEY', '')
+# BILLDESK_CLIENT_ID = os.getenv('BILLDESK_CLIENT_ID', '')
 
 # Email configuration (loaded from .env)
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')

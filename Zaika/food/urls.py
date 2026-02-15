@@ -32,7 +32,6 @@ urlpatterns = [
     path('admin/shop_listing/', shop_listing, name='shop_listing'),
     path('admin/toggle_availability/<int:item_id>/', toggle_availability, name='toggle_availability'),
     path('pay_online/', generate_order_id, name='generate_order_id'),
-    path('payment-success/', payment_success_view, name='payment-success'),
     path("ulogin/",ulogin,name="ulogin"),
     path("usignup/",usignup,name="usignup"),
     path("ulogout/",ulogout,name="ulogout"),    

@@ -92,14 +92,13 @@ WSGI_APPLICATION = 'Zaikaa.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'zaikaa',  # Replace with your database name
-        'USER': 'postgres',  # Replace with your database username
-        'PASSWORD': '12345',  # Replace with your database password
-        'HOST': 'localhost',  # Use the appropriate host (default is localhost)
-        'PORT': '5432',  # Default PostgreSQL port
+        'NAME': 'zaikaa',
+        'USER': 'postgres',
+        'PASSWORD': 'Z@!Kaa26',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
-DATABASE_URL = "postgresql://postgres:12345@localhost:5432/zaikaa"
 
 # DATABASES = {
 #     'default': {

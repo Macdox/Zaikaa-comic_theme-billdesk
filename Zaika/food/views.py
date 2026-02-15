@@ -544,7 +544,7 @@ def past_orders(request):
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
 
-    return JsonResponse({"error": "Invalid  method"}, status=405)
+    return JsonResponse({"error": "Invalid request method"}, status=405)
 
 
 

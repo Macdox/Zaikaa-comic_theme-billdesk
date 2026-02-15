@@ -103,6 +103,9 @@ def home(request):
             # Redirect to confirmation page
             return redirect('confirm_order')
 
+        # Sort items in each shop by item_id
+        for shop in shops.values():
+            shop['items'] = sorted(shop['items'], key=lambda x: x['item_id'])
         # Sort shops by shop_id
         sorted_shops = dict(sorted(shops.items(), key=lambda x: x[1]['shop_id']))
         # Pass the data to the template

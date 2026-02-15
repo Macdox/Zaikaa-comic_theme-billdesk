@@ -1062,23 +1062,6 @@ def urnp(request):
     return render(request, "urnp.html")
 
 
-def cancel_order(request, order_id):
-    if request.session.get("is_authenticated"):
-        try:
-            with connection.cursor() as cursor:
-                cursor.execute("""
-                    DELETE FROM orderlist
-                    WHERE order_id = %s AND email = %s
-                """, [order_id, request.session.get('user_email')])
-            messages.success(request, "Order cancelled successfully.")
-        except Exception as e:
-            messages.error(request, f"Failed to cancel order: {str(e)}")
-        return redirect('past_orders_page')
-    else:
-        return redirect('ulogin')
-
-
-
 
 
 

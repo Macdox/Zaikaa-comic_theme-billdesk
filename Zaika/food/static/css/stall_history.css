@@ -49,6 +49,7 @@ h1 {
     font-family: 'Bangers', cursive;
     text-transform: uppercase;
     text-shadow: 3px 3px 0px var(--comic-yellow);
+    letter-spacing: 3px;
 }
 
 /* Table styling */
@@ -73,12 +74,14 @@ th, td {
     text-align: center;
     font-size: 1.1rem;
     font-weight: bold;
+    letter-spacing: 3px;
 }
 
 th {
     font-family: 'Bangers', cursive;
     font-size: 1.3rem;
     text-transform: uppercase;
+    text-shadow: 2px 2px 0px black;
 }
 
 tbody tr:nth-child(even) {

@@ -24,9 +24,20 @@ document.addEventListener("DOMContentLoaded", function () {
     // Continuous validation on input
     emailInput.addEventListener("input", validateEmail);
 
-    // Prevent form submission if email is invalid
+    // Password validation function
+    function validatePassword() {
+        const password = document.getElementById("password").value;
+        const passwordPattern = /^\d{6}$/; // Exactly 6 digits
+        if (!passwordPattern.test(password)) {
+            alert("Password must be exactly 6 digits (numbers only)");
+            return false;
+        }
+        return true;
+    }
+
+    // Prevent form submission if email or password is invalid
     form.addEventListener("submit", function (event) {
-        if (!validateEmail()) {
+        if (!validateEmail() || !validatePassword()) {
             event.preventDefault(); // Stop form submission
         }
     });

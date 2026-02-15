@@ -11,21 +11,26 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load environment variables from .env file
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-(pycr-ai9=z!8zpn+yu#uk1izne)gy$9++n+zkr42w6x4^&lla'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-(pycr-ai9=z!8zpn+yu#uk1izne)gy$9++n+zkr42w6x4^&lla')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['*']
+# Parse ALLOWED_HOSTS from environment variable (comma-separated)
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,*').split(',')
 
 
 # Application definition
@@ -78,19 +83,9 @@ WSGI_APPLICATION = 'Zaikaa.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'zaikaa',
-#         'USER': 'root',
-#         'PASSWORD': 'abc123',
-#         'HOST': 'localhost',
-#         'PORT': '3306',
-#     }
-# }
-
 DATABASES = {
     'default': {
+
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'zaikaa',
         'USER': 'postgres',
@@ -113,6 +108,7 @@ DATABASES = {
 # at deployment
 
 #DATABASE_URL="postgresql://postgres:abcd1234@zaikaa2.chum8aeo6hwb.ap-south-1.rds.amazonaws.com:5432/zaikaa"
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -156,43 +152,42 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
-SESSION_COOKIE_AGE = 86400  # 1 day
-SESSION_SAVE_EVERY_REQUEST = True
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_COOKIE_AGE = int(os.getenv('SESSION_COOKIE_AGE', '86400'))  # 1 day
+SESSION_SAVE_EVERY_REQUEST = os.getenv('SESSION_SAVE_EVERY_REQUEST', 'True') == 'True'
+SESSION_EXPIRE_AT_BROWSER_CLOSE = os.getenv('SESSION_EXPIRE_AT_BROWSER_CLOSE', 'False') == 'True'
 
 
 
 
-# import os # deployment
+STATIC_URL = '/static/'
 
-STATIC_URL = '/static/' # both deployment and testing
-# STATIC_ROOT = '/home/ubuntu/zaikaa/static'  # for deployment
-
-STATICFILES_DIRS = [
-    BASE_DIR / "food/static",  # Pointing to the correct folder inside the food app
-]
-# STATICFILES_DIRS = [
-#     os.path.join(BASE_DIR, 'food/static'),  # deployment
-# ]
-
-
-STATIC_ROOT = BASE_DIR / 'staticfiles'  # testing
-
-
-# Razorpay credentials testing
-RAZORPAY_KEY_ID = 'rzp_test_x6EYO4W3NIqb6X'
-RAZORPAY_SECRET_KEY = 'XyLCQKkNiM9Mf5DIzRwReFEg'
+# Static files configuration
+# In development: STATICFILES_DIRS is used
+# In production: STATIC_ROOT is used (set via .env)
+static_root_env = os.getenv('STATIC_ROOT', '')
+if static_root_env:
+    # Production: use STATIC_ROOT from environment
+    STATIC_ROOT = static_root_env
+    # Don't use STATICFILES_DIRS in production
+else:
+    # Development: use STATICFILES_DIRS
+    STATICFILES_DIRS = [
+        BASE_DIR / "food/static",
+    ]
+    STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 
-# Razorpay credentials production
-# RAZORPAY_KEY_ID = 'rzp_live_uJ1VIqrWCu5P0o'
-# RAZORPAY_SECRET_KEY = 'Sd8tttdUJXKrhOWmZdXqMHNm'
+# Billdesk credentials (to be configured)
+# BILLDESK_MERCHANT_ID = os.getenv('BILLDESK_MERCHANT_ID', '')
+# BILLDESK_SECRET_KEY = os.getenv('BILLDESK_SECRET_KEY', '')
+# BILLDESK_CLIENT_ID = os.getenv('BILLDESK_CLIENT_ID', '')
 
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = "ecell@sakec.ac.in"
-EMAIL_HOST_PASSWORD = "doty lfzx shrx hanw"
-EMAIL_USE_TLS = True
+# Email configuration (loaded from .env)
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'ecell@sakec.ac.in')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', 'doty lfzx shrx hanw')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # Force the sender email

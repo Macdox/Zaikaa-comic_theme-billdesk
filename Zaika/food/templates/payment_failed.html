@@ -1,0 +1,96 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Failed - Zaikaa</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/pay_online.css' %}" />
+    <link rel="icon" href="{% static 'img/ecell-logo.png'%}" type="image/png">
+    <style>
+        .failed-container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 30px;
+            text-align: center;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        .failed-icon {
+            font-size: 80px;
+            color: #dc3545;
+            margin-bottom: 20px;
+        }
+        .failed-title {
+            color: #dc3545;
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+        .failed-message {
+            color: #555;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        .error-details {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .error-details p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        .retry-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        .retry-btn:hover {
+            background: #0056b3;
+        }
+        .home-link {
+            display: block;
+            margin-top: 15px;
+            color: #666;
+            text-decoration: none;
+        }
+        .home-link:hover {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="failed-container">
+        <div class="failed-icon">✗</div>
+        <h1 class="failed-title">Payment Failed</h1>
+        <p class="failed-message">{{ message }}</p>
+        
+        {% if order_id or error %}
+        <div class="error-details">
+            {% if order_id %}
+            <p><strong>Order ID:</strong> {{ order_id }}</p>
+            {% endif %}
+            {% if error %}
+            <p><strong>Error:</strong> {{ error }}</p>
+            {% endif %}
+            {% if reason %}
+            <p><strong>Reason:</strong> {{ reason }}</p>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        <a href="{% url 'generate_order_id' %}" class="retry-btn">Try Again</a>
+        <a href="{% url 'home' %}" class="home-link">← Back to Home</a>
+    </div>
+</body>
+</html>

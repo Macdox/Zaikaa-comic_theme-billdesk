@@ -21,7 +21,7 @@
 <body>
     <img src="{% static 'img/e_cell_logo.png' %}" alt="E-Cell Logo" class="ecell-logo">
     <div class="container">
-        <img src="{% static 'img/FF_logo.png' %}" alt="Food Fiesta Logo" class="logo">
+        <img src="{% static 'img/ff_logo.png' %}" alt="Food Fiesta Logo" class="logo">
         <h2 style="color: #e65c00;">Food Fiesta Login</h2>
         {% if msg %}
             <p class="error-msg" style="color: red; font-weight: bold; margin-bottom: 15px;">{{ msg }}</p>
@@ -38,7 +38,7 @@
             </div>
             <button type="submit" class="btn">Login</button>
             <div class="options">
-                <a href="{% url 'urnp' %}" id="forgot-password" style="color: red">Forgot Password?</a>
+                <!-- <a href="{% url 'urnp' %}" id="forgot-password" style="color: red">Forgot Password?</a> -->
                 <a href="{% url 'usignup' %}" id="signup" style="color: green">Sign Up</a>
             </div>
         </form>

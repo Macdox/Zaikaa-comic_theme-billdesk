@@ -103,9 +103,14 @@ def home(request):
             # Redirect to confirmation page
             return redirect('confirm_order')
 
+        # Sort items in each shop by item_id
+        for shop in shops.values():
+            shop['items'] = sorted(shop['items'], key=lambda x: x['item_id'])
+        # Sort shops by shop_id
+        sorted_shops = dict(sorted(shops.items(), key=lambda x: x[1]['shop_id']))
         # Pass the data to the template
         return render(request, 'home.html', {
-            'shops': shops,
+            'shops': sorted_shops,
             'user_name': user_name,
             'user_email': user_email,
             'user_phone': user_phone,
@@ -194,7 +199,7 @@ def create_order(request):
                 
                 if merchantid and bdorderid and rdata:
                     # Redirect to Express forwardToBillDesk endpoint
-                    forward_url = f"{Backend_url}/api/payments/forward-to-billdesk?merchantid={merchantid}&bdorderid={bdorderid}&rdata={rdata}"
+                    forward_url = f"{Backend_url}/api/payments/forward?merchantid={merchantid}&bdorderid={bdorderid}&rdata={rdata}"
                     return redirect(forward_url)
                 else:
                     return HttpResponse("Payment gateway configuration error", status=500)
@@ -498,6 +503,7 @@ def allorders(request):
 
 @csrf_protect
 def past_orders(request):
+
     if request.method == "POST":
         try:
             data = json.loads(request.body)
@@ -506,58 +512,44 @@ def past_orders(request):
             if not email:
                 return JsonResponse({"error": "Email not provided"}, status=400)
 
+            # Fetch all orders for this user with a tokenid
             with connection.cursor() as cursor:
-                # Fetch distinct token IDs, timestamp, mode_of_payment, and status for orders
                 cursor.execute("""
-                    SELECT DISTINCT "tokenid", "timestamp", "mode_of_payment"
-                    FROM "orderlist"
-                    WHERE "email" = %s AND "tokenid" IS NOT NULL
-                    ORDER BY "timestamp" DESC;
+                    SELECT o.tokenid, o.timestamp, o.mode_of_payment, s.shop_name, o.item_name, o.qty, o.total_amt, o.status
+                    FROM orderlist o
+                    JOIN shops s ON o.shop_id = s.shop_id
+                    WHERE o.email = %s AND o.tokenid IS NOT NULL
+                    ORDER BY o.timestamp DESC, o.tokenid DESC;
                 """, [email])
-                tokens = cursor.fetchall()
+                rows = cursor.fetchall()
 
-            if not tokens:
-                return JsonResponse({"orders": []}, status=200)
-
-            orders = []
-            for token_id, timestamp, mode_of_payment in tokens:
-                # logger.info(f"Fetching order for token_id: {token_id}")  # Log token_id
-
-                with connection.cursor() as cursor:
-                    # Fetch items and their statuses for each token
-                    cursor.execute("""
-                        SELECT s."shop_name", o."item_name", o."qty", o."total_amt", o."status"
-                        FROM "orderlist" o
-                        JOIN "shops" s ON o."shop_id" = s."shop_id"
-                        WHERE o."tokenid" = %s;
-                    """, [token_id])
-                    items = cursor.fetchall()
-
-                grand_total = sum(item[3] for item in items)
-                orders.append({
-                    "token_id": token_id,
-                    "timestamp": timestamp.strftime("%d %B %Y, %I:%M %p") if isinstance(timestamp, datetime) else "Unknown Date",
-                    "mode_of_payment": mode_of_payment,
-                    "items": [
-                        {
-                            "shop_name": item[0],
-                            "item_name": item[1],
-                            "quantity": item[2],
-                            "total_amount": item[3],
-                            "status": item[4]  # Item-specific status
-                        }
-                        for item in items
-                    ],
-                    "grand_total": grand_total
+            # Group by tokenid
+            grouped = {}
+            for tokenid, timestamp, mode_of_payment, shop_name, item_name, qty, total_amt, status in rows:
+                if tokenid not in grouped:
+                    grouped[tokenid] = {
+                        "token_id": tokenid,
+                        "timestamp": timestamp.strftime("%d %B %Y, %I:%M %p") if isinstance(timestamp, datetime) else "Unknown Date",
+                        "mode_of_payment": mode_of_payment,
+                        "items": [],
+                        "grand_total": 0
+                    }
+                grouped[tokenid]["items"].append({
+                    "shop_name": shop_name,
+                    "item_name": item_name,
+                    "quantity": qty,
+                    "total_amount": total_amt,
+                    "status": status
                 })
+                grouped[tokenid]["grand_total"] += total_amt
 
+            orders = list(grouped.values())
             return JsonResponse({"orders": orders}, status=200)
 
         except Exception as e:
-            # logger.error(f"Error fetching past orders: {str(e)}")
             return JsonResponse({"error": str(e)}, status=500)
 
-    return JsonResponse({"error": "Invalid request method"}, status=405)
+    return JsonResponse({"error": "Invalid  method"}, status=405)
 
 
 
@@ -662,14 +654,16 @@ def update_order_status(request, order_id, status):
 
 
 # Dummy admin credentials
-ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL","tejasnajare@gmail.com")
-ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD","tejas@123")
+ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD")
 
 def admin_login(request):
     if request.method == "POST":
         email = request.POST.get("email")
         password = request.POST.get("password")
 
+        print(f"Admin login attempt: Email={email}, Password={password}")  # Log email and mask password
+        print(f"Expected Admin Credentials: Email={ADMIN_EMAIL}, Password={ADMIN_PASSWORD}")  # Log expected credentials (mask password)
         if email == ADMIN_EMAIL and password == ADMIN_PASSWORD:
             request.session['admin_logged_in'] = True
             return redirect('admin_panel')
@@ -773,12 +767,14 @@ def delete_shop(request, shop_id):
     # Logic to delete shop and associated items
     if request.method == 'POST':
         try:
-            # Delete all menu items related to the shop
             with connection.cursor() as cursor:
+                # First, delete all orders related to the shop (or set shop_id to NULL)
+                cursor.execute('DELETE FROM "orderlist" WHERE "shop_id" = %s', [shop_id])
+                
+                # Delete all menu items related to the shop
                 cursor.execute('DELETE FROM "menuitems" WHERE "shop_id" = %s', [shop_id])
 
-            # Delete the shop itself
-            with connection.cursor() as cursor:
+                # Delete the shop itself
                 cursor.execute('DELETE FROM "shops" WHERE "shop_id" = %s', [shop_id])
 
             return JsonResponse({"success": True, "message": "Shop and its items deleted successfully."})
@@ -849,7 +845,7 @@ def payment_success_view(request):
     if request.method == 'GET':
         # logging.debug("Received GET request for payment success.")
         
-        payment_id = request.GET.get('payment_id')
+        payment_id = request.GET.get('txn_id')
         order_id = request.GET.get('order_id')
 
         if payment_id and order_id:
@@ -1341,7 +1337,9 @@ def payment_success_billdesk(request):
         user_phone = request.session.get('user_phone')
         selected_items = request.session.get('selected_items', [])
 
-        if not user_email or not selected_items:
+        print(f"Session Data: user_name={user_name}, user_email={user_email}, user_phone={user_phone}, selected_items={selected_items}")
+
+        if not user_email:
             return HttpResponse("Session expired. Please try again.", status=400)
 
         try:

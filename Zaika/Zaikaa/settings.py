@@ -30,7 +30,16 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-(pycr-ai9=z!8zpn+yu#uk1izn
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 # Parse ALLOWED_HOSTS from environment variable (comma-separated)
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,*').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'zaika.online,www.zaika.online,localhost,127.0.0.1').split(',')
+
+# CSRF trusted origins for secure form submissions
+CSRF_TRUSTED_ORIGINS = [
+    'https://zaika.online',
+    'https://www.zaika.online',
+    'http://zaika.online',
+    'http://www.zaika.online',
+    'http://localhost:8002',
+]
 
 
 # Application definition
@@ -48,6 +57,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Serve static files in production
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -85,14 +95,30 @@ WSGI_APPLICATION = 'Zaikaa.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
-        'NAME': os.getenv('DB_NAME', 'zaikaa'),
-        'USER': os.getenv('DB_USER', 'postgres'),
-        'PASSWORD': os.getenv('DB_PASSWORD', '12345'),
-        'HOST': os.getenv('DB_HOST', 'localhost'),
-        'PORT': os.getenv('DB_PORT', '5433'),
+
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'zaika',
+        'USER': 'postgres',
+        'PASSWORD': 'Z@!Kaa26',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'postgres',  # Database name
+#         'USER': 'postgres',  # Your RDS username
+#         'PASSWORD': 'abcd1234',  # Your RDS password
+#         'HOST': 'zaikaa2.chum8aeo6hwb.ap-south-1.rds.amazonaws.com',  # RDS Endpoint
+#         'PORT': '5432',  # Default PostgreSQL port
+#     }
+# }
+# at deployment
+
+#DATABASE_URL="postgresql://postgres:abcd1234@zaikaa2.chum8aeo6hwb.ap-south-1.rds.amazonaws.com:5432/zaikaa"
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -146,19 +172,10 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = os.getenv('SESSION_EXPIRE_AT_BROWSER_CLOSE', '
 STATIC_URL = '/static/'
 
 # Static files configuration
-# In development: STATICFILES_DIRS is used
-# In production: STATIC_ROOT is used (set via .env)
-static_root_env = os.getenv('STATIC_ROOT', '')
-if static_root_env:
-    # Production: use STATIC_ROOT from environment
-    STATIC_ROOT = static_root_env
-    # Don't use STATICFILES_DIRS in production
-else:
-    # Development: use STATICFILES_DIRS
-    STATICFILES_DIRS = [
-        BASE_DIR / "food/static",
-    ]
-    STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [
+    BASE_DIR / "food/static",
+]
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 
 # Billdesk credentials (to be configured)
@@ -175,3 +192,25 @@ EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # Force the sender email
+
+# ===========================================
+# PRODUCTION SECURITY SETTINGS
+# ===========================================
+if not DEBUG:
+    # HTTPS/SSL Settings
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = False  # Set to True if using HTTPS
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    
+    # Security Headers
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'
+
+# WhiteNoise configuration for static files
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+WHITENOISE_USE_FINDERS = True
+
+# Backend URL for API calls
+BACKEND_URL = os.getenv('BACKEND_URL', 'http://localhost:8000')
